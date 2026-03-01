@@ -443,28 +443,33 @@ export default function OrbitalDashboard() {
       .catch((err) => console.error("SpaceX API fetch error:", err));
   }, []);
 
-  const upcoming = useMemo(
-    () => {
-      // Create a set of IDs to prevent duplicates if missions.json also contains them
-      const localUpcoming = allMissions.filter((m) => ["Scheduled", "TBD", "In Flight"].includes(m.status));
-      const merged = [...localUpcoming, ...dynamicSpX];
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-      return merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    },
-    [dynamicSpX]
-  );
+  const upcoming = useMemo(() => {
+    return [...allMissions, ...dynamicSpX]
+      .filter((m) => {
+        const isFinished = ["Success", "Failure", "Partial Failure"].includes(m.status);
+        // Upcoming if: date is today or future AND not finished
+        // Or if date is TBD
+        return (m.date === "TBD" || m.date > todayStr || (m.date === todayStr && !isFinished));
+      })
+      .sort((a, b) => {
+        if (a.date === "TBD") return 1;
+        if (b.date === "TBD") return -1;
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+  }, [dynamicSpX, todayStr]);
 
-  const past = useMemo(
-    () =>
-      allMissions
-        .filter((m) =>
-          ["Success", "Failure", "Partial Failure"].includes(m.status),
-        )
-        .sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-        ),
-    [],
-  );
+  const past = useMemo(() => {
+    return [...allMissions, ...dynamicSpX]
+      .filter((m) => {
+        const isFinished = ["Success", "Failure", "Partial Failure"].includes(m.status);
+        // Past if: date is strictly in the past
+        // Or if date is today and it's already finished
+        return (m.date !== "TBD" && (m.date < todayStr || (m.date === todayStr && isFinished)));
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [dynamicSpX, todayStr]);
 
   const activeMissions = activeTab === "upcoming" ? upcoming : past;
 
