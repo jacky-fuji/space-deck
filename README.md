@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛰️ Orbital Dashboard
+
+> A real-time rocket launch tracking dashboard — sleek, minimal, and space-themed.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
+
+## Overview
+
+**Orbital Dashboard** is a web application that visualizes global rocket launch schedules and historical mission data. It features an interactive world map with launch site pins, a bilingual UI (JP/EN), and a comprehensive mission log covering 4,000+ orbital launches dating back to Sputnik 1 (1957).
+
+## Features
+
+- 🗺️ **Interactive Launch Map** — Leaflet-powered world map with 70+ global launch sites and tooltips
+- 📋 **Mission Log** — Upcoming & historical launches with pagination ("Load More")
+- 📊 **Summary Widgets** — Total launches, upcoming count, success rate
+- 🌏 **Bilingual UI** — Full English / Japanese toggle (JP/EN)
+- 🕐 **4,100+ Historical Missions** — Sourced from [GCAT (planet4589.org)](https://planet4589.org/space/gcat/) and JAXA
+- 🎨 **Dark, minimal design** — SF-instrument aesthetic with subtle animations
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS 4 |
+| Map | Leaflet + react-leaflet |
+| Icons | lucide-react |
+| Data | GCAT TSV + JAXA HTML (static JSON) |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Production build
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Data Sources
 
-## Learn More
+| Source | Description |
+|---|---|
+| [GCAT — planet4589.org](https://planet4589.org/space/gcat/) | ~6,800 orbital launch records (TSV) |
+| [JAXA Launch Results](https://www.jaxa.jp/projects/result_j.html) | Japanese missions with JP names (1970–present) |
 
-To learn more about Next.js, take a look at the following resources:
+Historical mission data is pre-processed into `src/app/data/missions.json` at build time.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+space-deck/
+├── src/app/
+│   ├── page.tsx            # Main dashboard page & all UI components
+│   ├── layout.tsx          # Root layout & metadata
+│   ├── globals.css         # Global styles & animations
+│   ├── components/
+│   │   └── LaunchMap.tsx   # Leaflet map component (dynamic import)
+│   └── data/
+│       └── missions.json   # Pre-processed launch history (~4,100 records)
+├── SPEC.md                 # Functional specification
+├── ARCHITECTURE.md         # Technical architecture
+└── LICENSE                 # MIT
+```
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](./LICENSE) © 2026 Junichi Fujinuma

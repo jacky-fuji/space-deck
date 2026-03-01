@@ -575,7 +575,7 @@ export default function OrbitalDashboard() {
 
           {/* ── Mobile Card List ───────────────────────────────────────── */}
           <div className="divide-y divide-white/[0.04] md:hidden">
-            {activeMissions.map((m) => (
+            {paginatedMissions.map((m) => (
               <div
                 key={m.id}
                 className="group flex items-start gap-4 px-4 py-4 transition-colors hover:bg-white/[0.03]"
@@ -621,6 +621,21 @@ export default function OrbitalDashboard() {
               </div>
             ))}
           </div>
+
+          {/* Load More Button */}
+          {activeMissions.length > visibleCount && (
+            <div className="flex justify-center py-6">
+              <button
+                onClick={() => setVisibleCount((prev) => prev + 100)}
+                className="group flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-8 py-2.5 text-[11px] font-medium uppercase tracking-widest text-neutral-400 transition-all hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-neutral-100 active:scale-95"
+              >
+                {lang === "ja" ? "さらに読み込む" : "Load More"}
+                <span className="text-neutral-600 transition-colors group-hover:text-neutral-400">
+                  ({activeMissions.length - visibleCount} {lang === "ja" ? "件" : "remaining"})
+                </span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ── Launch Sites Map ──────────────────────────────────────── */}
