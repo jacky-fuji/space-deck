@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   Rocket,
@@ -14,6 +14,7 @@ import {
   Activity,
   ChevronRight,
   Map,
+  Filter,
 } from "lucide-react";
 import type { LaunchSite, MapMission } from "./components/LaunchMap";
 import missionsData from "./data/missions.json";
@@ -21,12 +22,13 @@ import missionsData from "./data/missions.json";
 // Dynamic import — Leaflet requires window
 const LaunchMap = dynamic(() => import("./components/LaunchMap"), {
   ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center text-neutral-600 text-xs">
-      Loading map…
-    </div>
-  ),
+  loading: () => <div className="h-[400px] w-full" />,
 });
+
+const LaunchHistoryChart = dynamic(
+  () => import("./components/LaunchHistoryChart"),
+  { ssr: false, loading: () => <div className="h-[380px] w-full" /> }
+);
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -146,6 +148,10 @@ const translations = {
     scheduled: "scheduled",
     launchSites: "Launch Sites",
     launchSitesDesc: "Worldwide spaceport locations",
+    all: "All",
+    filterYear: "Year",
+    filterCountry: "Country",
+    filterStatus: "Status",
   },
   ja: {
     totalLaunches: "年間打ち上げ数 (2026)",
@@ -164,6 +170,10 @@ const translations = {
     scheduled: "件の予定",
     launchSites: "発射場マップ",
     launchSitesDesc: "世界の宇宙港",
+    all: "すべて",
+    filterYear: "年",
+    filterCountry: "国",
+    filterStatus: "ステータス",
   },
 } as const;
 
@@ -259,20 +269,189 @@ function MissionTypeBadge({ type }: { type: MissionType }) {
   );
 }
 
+// ─── Site Country Map ────────────────────────────────────────────────────────
+
+const SITE_COUNTRY: Record<string, { flag: string; name: string; nameJP: string }> = {
+  // USA
+  "ksc": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "cape-canaveral": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "vandenberg": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "wallops": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "kodiak": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "spaceport-america": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "boca-chica": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "taiki": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "kushimoto": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  // Russia
+  "plesetsk": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "vostochny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "yasny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "kapustin-yar": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  // Kazakhstan
+  "baikonur": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
+  // Japan
+  "tanegashima": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "uchiinoura": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  // China
+  "jiuquan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "xichang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "taiyuan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "wenchang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  // France (Guiana)
+  "kourou": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+  // India
+  "sriharikota": { flag: "🇮🇳", name: "India", nameJP: "インド" },
+  // South Korea
+  "naro": { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" },
+  // North Korea
+  "sohae": { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" },
+  // New Zealand
+  "mahia": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  // Israel
+  "palmachim": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
+  // Iran
+  "semnan": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
+  // Brazil
+  "alcantara": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
+  // Norway
+  "andoya": { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" },
+  // Sweden
+  "esrange": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
+  // Australia
+  "woomera": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
+  // Oman
+  "oman": { flag: "🇴🇲", name: "Oman", nameJP: "オマーン" },
+};
+
+// Fallback: map raw GCAT site codes to country
+const GCAT_COUNTRY: Record<string, { flag: string; name: string; nameJP: string }> = {
+  // USA
+  "CC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "KSC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "V": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "WI": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "AS": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "SA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "BOC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  // Russia
+  "PL": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "VO": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "DOM": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "KY": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "NIIP-53": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "GIK-1": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "PLK": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "VOSTO": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  // Kazakhstan
+  "B": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
+  "NIIP-5": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
+  "GIK-5": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
+  // Japan
+  "T": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "K": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "U": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  // China
+  "J": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "JQ": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "X": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "XSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "TY": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "TSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "W": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "WSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  // France / Guiana
+  "CSG": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+  "KO": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+  // India
+  "SRI": { flag: "🇮🇳", name: "India", nameJP: "インド" },
+  // South Korea
+  "NARO": { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" },
+  // North Korea
+  "SO": { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" },
+  // New Zealand
+  "MAH": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  // Israel
+  "PM": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
+  // Iran
+  "SEM": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
+  // Brazil
+  "AL": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
+  // Norway
+  "AND": { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" },
+  // Sweden
+  "ESR": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
+  // Australia
+  "WOM": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
+  // Germany / Cold War era test sites
+  "HVP": { flag: "🇩🇪", name: "Germany", nameJP: "ドイツ" },
+  "WEHR": { flag: "🇩🇪", name: "Germany", nameJP: "ドイツ" },
+};
+
+function getSiteCountry(siteId: string, location: string) {
+  return (
+    SITE_COUNTRY[siteId] ??
+    GCAT_COUNTRY[location] ??
+    GCAT_COUNTRY[location.split("-")[0]] ??
+    { flag: "🌍", name: "Unknown", nameJP: "不明" }
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function OrbitalDashboard() {
   const [lang, setLang] = useState<Lang>("en");
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
   const [visibleCount, setVisibleCount] = useState(50);
+  const [dynamicSpX, setDynamicSpX] = useState<Mission[]>([]);
+
+  // Filters
+  const [filterYear, setFilterYear] = useState<string>("All");
+  const [filterCountry, setFilterCountry] = useState<string>("All");
+  const [filterStatus, setFilterStatus] = useState<string>("All");
+
   const t = translations[lang];
 
+  useEffect(() => {
+    fetch("https://api.spacexdata.com/v4/launches/upcoming")
+      .then((res) => res.json())
+      .then((data) => {
+        const rockets: Record<string, string> = {
+          "5e9d0d95eda69973a809d1ec": "Falcon 9",
+          "5e9d0d95eda69974db09d1ed": "Falcon Heavy",
+          "5e9d0d96eda699382d09d1ee": "Starship",
+        };
+        const pads: Record<string, { siteId: string; location: string }> = {
+          "5e9e4501f509094ba4566f84": { siteId: "cape-canaveral", location: "Cape Canaveral" },
+          "5e9e4502f509094188566f88": { siteId: "ksc", location: "Kennedy Space Center" },
+          "5e9e4502f509092b78566f87": { siteId: "vandenberg", location: "Vandenberg SFB" },
+          "5e9e4502f509099ba4566f89": { siteId: "boca-chica", location: "Starbase, Texas" },
+        };
+
+        const mapped: Mission[] = data.map((d: any) => ({
+          id: `spx-up-${d.id}`,
+          date: d.date_utc ? d.date_utc.split("T")[0] : "TBD",
+          missionName: d.name,
+          missionType: "Commercial" as MissionType,
+          rocketName: rockets[d.rocket] || "SpaceX Rocket",
+          provider: "SpaceX",
+          location: pads[d.launchpad]?.location || "Unknown Pad",
+          siteId: pads[d.launchpad]?.siteId || "usa",
+          status: d.tbd ? "TBD" : "Scheduled",
+        }));
+        setDynamicSpX(mapped);
+      })
+      .catch((err) => console.error("SpaceX API fetch error:", err));
+  }, []);
+
   const upcoming = useMemo(
-    () =>
-      allMissions
-        .filter((m) => ["Scheduled", "TBD", "In Flight"].includes(m.status))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-    [],
+    () => {
+      // Create a set of IDs to prevent duplicates if missions.json also contains them
+      const localUpcoming = allMissions.filter((m) => ["Scheduled", "TBD", "In Flight"].includes(m.status));
+      const merged = [...localUpcoming, ...dynamicSpX];
+
+      return merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    },
+    [dynamicSpX]
   );
 
   const past = useMemo(
@@ -288,21 +467,64 @@ export default function OrbitalDashboard() {
   );
 
   const activeMissions = activeTab === "upcoming" ? upcoming : past;
+
+  const availableYears = useMemo(() => {
+    const years = new Set<string>();
+    activeMissions.forEach(m => {
+      if (m.date && m.date !== "TBD") years.add(m.date.substring(0, 4));
+    });
+    return Array.from(years).sort((a, b) => b.localeCompare(a));
+  }, [activeMissions]);
+
+  const availableCountries = useMemo(() => {
+    const countries = new Set<string>();
+    activeMissions.forEach(m => {
+      countries.add(getSiteCountry(m.siteId, m.location).name);
+    });
+    return Array.from(countries).sort();
+  }, [activeMissions]);
+
+  const availableStatuses = useMemo(() => {
+    const statuses = new Set<string>();
+    activeMissions.forEach(m => statuses.add(m.status));
+    return Array.from(statuses).sort();
+  }, [activeMissions]);
+
+  const filteredMissions = useMemo(() => {
+    return activeMissions.filter(m => {
+      let match = true;
+      if (filterYear !== "All") {
+        if (!m.date.startsWith(filterYear)) match = false;
+      }
+      if (filterCountry !== "All") {
+        const c = getSiteCountry(m.siteId, m.location);
+        if (c.name !== filterCountry) match = false;
+      }
+      if (filterStatus !== "All") {
+        if (m.status !== filterStatus) match = false;
+      }
+      return match;
+    });
+  }, [activeMissions, filterYear, filterCountry, filterStatus]);
+
   const paginatedMissions = useMemo(
-    () => activeMissions.slice(0, visibleCount),
-    [activeMissions, visibleCount],
+    () => filteredMissions.slice(0, visibleCount),
+    [filteredMissions, visibleCount],
   );
 
-  // Reset pagination when tab changes
+  // Reset pagination and filters when tab changes
   const handleTabChange = (tab: "upcoming" | "past") => {
     setActiveTab(tab);
     setVisibleCount(50);
+    setFilterYear("All");
+    setFilterCountry("All");
+    setFilterStatus("All");
   };
 
   // Map data
   const mapMissions: MapMission[] = useMemo(
     () =>
-      allMissions.map((m) => ({
+      [...allMissions, ...dynamicSpX].map((m) => ({
         missionName: lang === "ja" && m.missionNameJP ? m.missionNameJP : m.missionName,
         rocketName: lang === "ja" && m.rocketNameJP ? m.rocketNameJP : m.rocketName,
         provider: m.provider,
@@ -310,11 +532,23 @@ export default function OrbitalDashboard() {
         status: m.status,
         siteId: m.siteId,
       })),
-    [lang],
+    [lang, dynamicSpX],
+  );
+
+  // Chart data — past missions annotated with country name
+  const chartMissions = useMemo(
+    () =>
+      filteredMissions.map((m) => ({
+        date: m.date,
+        siteId: m.siteId,
+        location: m.location,
+        country: getSiteCountry(m.siteId, m.location).name,
+      })),
+    [filteredMissions],
   );
 
   // Stats
-  const totalLaunches = allMissions.length;
+  const totalLaunches = allMissions.length + dynamicSpX.length;
   const next30 = upcoming.length;
   const successCount = past.filter((m) => m.status === "Success").length;
   const successRate =
@@ -472,6 +706,13 @@ export default function OrbitalDashboard() {
           </div>
         </div>
 
+        {/* ── Launch History Chart (Past only) ──────────────────────── */}
+        {activeTab === "past" && (
+          <div className="mb-6">
+            <LaunchHistoryChart missions={chartMissions} lang={lang} />
+          </div>
+        )}
+
         {/* ── Mission Log ──────────────────────────────────────────────── */}
         <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
           {/* Tab header */}
@@ -486,7 +727,7 @@ export default function OrbitalDashboard() {
               {(["upcoming", "past"] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTabChange(tab)}
                   className={`relative px-4 pb-3 text-xs font-medium tracking-wider transition-colors ${activeTab === tab
                     ? "text-neutral-100"
                     : "text-neutral-500 hover:text-neutral-300"
@@ -498,6 +739,43 @@ export default function OrbitalDashboard() {
                   )}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* ── Filters ─────────────────────────────────────────────────── */}
+          <div className="flex flex-wrap items-center gap-4 border-b border-white/[0.06] bg-white/[0.01] px-5 py-3">
+            <div className="flex items-center gap-2">
+              <Filter className="h-3 w-3 text-neutral-500" />
+              <span className="text-[10px] font-medium uppercase tracking-widest text-neutral-500">Filter</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={filterYear}
+                onChange={(e) => { setFilterYear(e.target.value); setVisibleCount(50); }}
+                className="appearance-none rounded-md border border-white/[0.08] bg-[#0a0a0a] px-3 py-1.5 text-xs text-neutral-300 outline-none transition-colors hover:border-white/[0.2] focus:border-sky-500/50"
+              >
+                <option value="All">{t.filterYear}: {t.all}</option>
+                {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+
+              <select
+                value={filterCountry}
+                onChange={(e) => { setFilterCountry(e.target.value); setVisibleCount(50); }}
+                className="appearance-none rounded-md border border-white/[0.08] bg-[#0a0a0a] px-3 py-1.5 text-xs text-neutral-300 outline-none transition-colors hover:border-white/[0.2] focus:border-sky-500/50"
+              >
+                <option value="All">{t.filterCountry}: {t.all}</option>
+                {availableCountries.map(c => <option key={c} value={c}>{lang === "ja" ? (Object.values(SITE_COUNTRY).find(sc => sc.name === c)?.nameJP || GCAT_COUNTRY[Object.keys(GCAT_COUNTRY).find(k => GCAT_COUNTRY[k].name === c) || ""]?.nameJP || c) : c}</option>)}
+              </select>
+
+              <select
+                value={filterStatus}
+                onChange={(e) => { setFilterStatus(e.target.value); setVisibleCount(50); }}
+                className="appearance-none rounded-md border border-white/[0.08] bg-[#0a0a0a] px-3 py-1.5 text-xs text-neutral-300 outline-none transition-colors hover:border-white/[0.2] focus:border-sky-500/50"
+              >
+                <option value="All">{t.filterStatus}: {t.all}</option>
+                {availableStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
           </div>
 
@@ -514,6 +792,9 @@ export default function OrbitalDashboard() {
                   </th>
                   <th className="px-5 py-3 text-left text-[10px] font-medium uppercase tracking-widest text-neutral-600">
                     {t.rocket}
+                  </th>
+                  <th className="px-5 py-3 text-left text-[10px] font-medium uppercase tracking-widest text-neutral-600">
+                    {lang === "ja" ? "国・地域" : "Country"}
                   </th>
                   <th className="px-5 py-3 text-left text-[10px] font-medium uppercase tracking-widest text-neutral-600">
                     {t.location}
@@ -555,6 +836,19 @@ export default function OrbitalDashboard() {
                           {m.provider}
                         </span>
                       </div>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-3.5">
+                      {
+                        (() => {
+                          const c = getSiteCountry(m.siteId, m.location);
+                          return (
+                            <span className="flex items-center gap-1.5 text-xs text-neutral-300">
+                              <span className="text-base leading-none">{c.flag}</span>
+                              <span>{lang === "ja" ? c.nameJP : c.name}</span>
+                            </span>
+                          );
+                        })()
+                      }
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-1.5">
@@ -611,7 +905,19 @@ export default function OrbitalDashboard() {
                     <StatusBadge status={m.status} />
                     <MissionTypeBadge type={m.missionType} />
                   </div>
-                  <div className="mt-1.5 flex items-center gap-1">
+                  <div className="mt-1.5 flex items-center gap-2">
+                    {
+                      (() => {
+                        const c = getSiteCountry(m.siteId, m.location);
+                        return (
+                          <span className="flex items-center gap-1 text-[11px] text-neutral-400">
+                            <span className="text-sm leading-none">{c.flag}</span>
+                            <span>{lang === "ja" ? c.nameJP : c.name}</span>
+                          </span>
+                        );
+                      })()
+                    }
+                    <span className="text-neutral-700">·</span>
                     <MapPin className="h-3 w-3 text-neutral-600" />
                     <span className="text-[11px] text-neutral-500">
                       {m.location}
@@ -623,7 +929,7 @@ export default function OrbitalDashboard() {
           </div>
 
           {/* Load More Button */}
-          {activeMissions.length > visibleCount && (
+          {filteredMissions.length > visibleCount && (
             <div className="flex justify-center py-6">
               <button
                 onClick={() => setVisibleCount((prev) => prev + 100)}
@@ -631,8 +937,25 @@ export default function OrbitalDashboard() {
               >
                 {lang === "ja" ? "さらに読み込む" : "Load More"}
                 <span className="text-neutral-600 transition-colors group-hover:text-neutral-400">
-                  ({activeMissions.length - visibleCount} {lang === "ja" ? "件" : "remaining"})
+                  ({filteredMissions.length - visibleCount} {lang === "ja" ? "件" : "remaining"})
                 </span>
+              </button>
+            </div>
+          )}
+
+          {filteredMissions.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
+              <Filter className="mb-3 h-8 w-8 opacity-20" />
+              <p className="text-sm">{lang === "ja" ? "条件に一致するミッションがありません" : "No missions match your filters"}</p>
+              <button
+                onClick={() => {
+                  setFilterYear("All");
+                  setFilterCountry("All");
+                  setFilterStatus("All");
+                }}
+                className="mt-4 text-xs font-medium text-sky-400 hover:text-sky-300"
+              >
+                {lang === "ja" ? "フィルターをリセット" : "Reset Filters"}
               </button>
             </div>
           )}
