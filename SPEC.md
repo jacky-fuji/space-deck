@@ -113,15 +113,34 @@ Orbital Dashboard is a read-only, browser-based launch tracking tool. Its primar
 
 ---
 
-## 6. Roadmap / Planned Features
+## 6. Phase 2: Functional Roadmap & Architecture
 
-| Priority | Feature |
-|---|---|
-| P1 | Search / filter bar for mission log (name, rocket, site, year) |
-| P1 | Year-range slider for historical browsing |
-| P2 | Real-time upcoming launch data feed (The Space Devs API / Launch Library 2) |
-| P2 | Mission detail modal / drawer (full mission info, links) |
-| P3 | Launch site detail page (history of launches from that site) |
-| P3 | Statistics page (launches per year chart, top rockets, top agencies) |
-| P3 | PWA support (offline access, push notifications for upcoming launches) |
-| P4 | User bookmarking / watchlist |
+To address the depth of global spaceflight data, the application will shift from a Single-Page Application (SPA) dashboard to a multi-page interconnected database architecture.
+
+### 6.1 Status Legend
+
+- 🟢 **[Implemented]**: Currently live in production.
+- 🔵 **[In Progress]**: Development actively underway.
+- 🟡 **[Not Implemented]**: Planned for future development sprints.
+
+### 6.2 Proposed Page Architecture (App Router)
+
+| Page Route | Status | Description |
+|---|---|---|
+| `/` (Home) | 🟢 | High-level summary, next upcoming launch countdown, global map. |
+| `/launches/*` | 🟡 | Dedicated tabular logs for Upcoming and Past (migrated from Home). |
+| `/launches/[id]` | 🟡 | Deep-dive mission specific page (payload mass, orbit targets, weather GO/NO-GO). |
+| `/providers/[slug]`| 🟡 | Agency/Company profiles (SpaceX, NASA) with historic fleet success curves. |
+| `/vehicles/[slug]` | 🟡 | Rocket encyclopedia with technical specs and booster-stage reuse history. |
+| `/locations/[slug]`| 🟡 | Spaceport details, listing active launch complexes (Pads) and resident providers. |
+| `/astronauts` | 🟡 | Human Spaceflight tracking (ISS/Tiangong active crew manifests). |
+
+### 6.3 Future Functional Integrations
+
+| Feature | Status | Requirement Outline |
+|---|---|---|
+| **LL2 API Webhooks** | 🟡 | Replace static `missions.json` upcoming data with real-time Launch Library 2 (LL2) queries for instant schedule slips/scrubs. |
+| **Live Media Embed** | 🟡 | Automatically fetch and embed official YouTube/Twitch streams during the `T-1H` launch window. |
+| **Calendar Sync** | 🟡 | Generate `.ics` files and Google Calendar API deep-links for users to export launch schedules. |
+| **Advanced Filtering** | 🟡 | Text-based search bar for historic payloads, year-range sliders, and orbital parameter filters (LEO vs GEO). |
+| **PWA Support** | 🟡 | Manifest and Service Worker implementation for offline access and native push notifications. |

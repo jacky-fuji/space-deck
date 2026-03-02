@@ -146,33 +146,50 @@ The app is deployable as a **pure static site** (`next export`) to any CDN (Verc
 
 ---
 
-## 8. Planned Architecture Evolution
+## 8. Planned Architecture Evolution (Phase 2)
 
-### Phase 2 — Live Data
+Currently, Orbital Dashboard is a Single-Page Application (SPA) driven by a monolithic `page.tsx` pulling from a static `missions.json`.
+
+Phase 2 will decentralize this into a **Multi-Page App Router Architecture**:
+
+### 8.1 Multi-Page Routing Architecture
+
+```
+src/app/
+├── globals.css
+├── layout.tsx                # Shared Navigation & Footer
+├── page.tsx                  # Home: Hero Countdown, Maps, Widgets
+├── launches/
+│   ├── upcoming/page.tsx     # Full Upcoming Log
+│   ├── past/page.tsx         # Full Historic Log
+│   └── [id]/page.tsx         # Deep-dive: Specific mission parameters
+├── providers/
+│   └── [slug]/page.tsx       # Deep-dive: Agency/Company profiles & fleets
+├── vehicles/
+│   └── [slug]/page.tsx       # Deep-dive: Rocket family specs & booster history
+├── locations/
+│   └── [slug]/page.tsx       # Deep-dive: Spaceport pads & activity
+└── astronauts/
+    └── page.tsx              # Active ISS/Tiangong crew tracking
+```
+
+### 8.2 Data Fetching Strategy (Phase 2)
 
 ```
 Browser
-  └── page.tsx
-        ├── Static data (missions.json)   ← historical
-        └── SWR / React Query             ← live upcoming feeds
-              └── Launch Library 2 API (thespacedevs.com)
+  └── App Router Pages
+        ├── Static SSG (missions.json)    ← Historic Archive (/launches/past, /vehicles)
+        └── Client-side SWR / React Query ← Live Data (/launches/upcoming, /astronauts)
+              └── Launch Library 2 (LL2) API
 ```
 
-### Phase 3 — Backend
-
-```
-Browser
-  └── Next.js (App Router)
-        ├── /api/missions           ← Serverless route
-        └── /api/sites              ← Serverless route
-              └── PostgreSQL / Supabase  ← Persistent store
-```
+By decoupling the historical archive (static SSG) from the upcoming schedule (dynamic client fetch), the app can maintain ultra-fast load times while ensuring schedule slips are refected in near real-time.
 
 ---
 
 ## 9. Environment Variables
 
-Currently none required. Future additions:
+Currently none required. Future additions for Phase 2:
 
 | Variable | Purpose |
 |---|---|

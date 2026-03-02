@@ -57,6 +57,18 @@ npm run start
 
 Historical mission data is pre-processed into `src/app/data/missions.json` at build time.
 
+## Roadmap (Phase 2 & Beyond)
+
+To transform Orbital Dashboard from a single-page viewer into a comprehensive spaceflight database, the following architectural and functional enhancements are planned:
+
+- 🟡 **[Planned] Multi-page Architecture**: Transition to Next.js App Router sub-routes (`/launches`, `/providers`, `/vehicles`, `/locations`, `/astronauts`).
+- 🟡 **[Planned] Live API Integration**: Migrate scheduled launches to Launch Library 2 (LL2) API for real-time scrub/delay tracking.
+- 🟡 **[Planned] Live Streaming**: Automatically embed SpaceX/NASA YouTube broadcasts during the `T-1H` countdown window.
+- 🟡 **[Planned] Entity Deep-Dives**: Clickable mission rows detailing precise payloads, weather telemetry, and booster reuse history.
+- 🟡 **[Planned] Calendar Sync**: Implement "Add to Calendar" (.ics) links for upcoming scheduled launches.
+
+*(Status: 🟢 Implemented | 🔵 In Progress | 🟡 Planned / Not Implemented)*
+
 ## Project Structure
 
 ```
