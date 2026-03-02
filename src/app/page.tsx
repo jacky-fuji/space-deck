@@ -280,25 +280,39 @@ const SITE_COUNTRY: Record<string, { flag: string; name: string; nameJP: string 
   "kodiak": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
   "spaceport-america": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
   "boca-chica": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "taiki": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "taiki": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
   "kushimoto": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "psca": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "mars": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "ccsfs": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "vsfb": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "usa": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
   // Russia
   "plesetsk": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
   "vostochny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
   "yasny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
   "kapustin-yar": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "svobodny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "dombarovsky": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
   // Kazakhstan
   "baikonur": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
   // Japan
   "tanegashima": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
-  "uchiinoura": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "uchinoura": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "tnsc": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "usc": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "kushima": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "space-one": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
   // China
   "jiuquan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
   "xichang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
   "taiyuan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
   "wenchang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "hailong": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "oriental-spaceport": { flag: "🇨🇳", name: "China", nameJP: "中国" },
   // France (Guiana)
   "kourou": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+  "csg": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
   // India
   "sriharikota": { flag: "🇮🇳", name: "India", nameJP: "インド" },
   // South Korea
@@ -307,10 +321,12 @@ const SITE_COUNTRY: Record<string, { flag: string; name: string; nameJP: string 
   "sohae": { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" },
   // New Zealand
   "mahia": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  "rocket-lab-lc1": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
   // Israel
   "palmachim": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
   // Iran
   "semnan": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
+  "shahrud": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
   // Brazil
   "alcantara": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
   // Norway
@@ -319,81 +335,138 @@ const SITE_COUNTRY: Record<string, { flag: string; name: string; nameJP: string 
   "esrange": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
   // Australia
   "woomera": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
+  "woman": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
   // Oman
   "oman": { flag: "🇴🇲", name: "Oman", nameJP: "オマーン" },
+  // Marshall Is.
+  "kwajalein": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+  "kwa": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+  "kmr": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+  // Norway
+  "norway": { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" },
+  // South Korea
+  "jeju": { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" },
 };
 
-// Fallback: map raw GCAT site codes to country
 const GCAT_COUNTRY: Record<string, { flag: string; name: string; nameJP: string }> = {
-  // USA
-  "CC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "KSC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "V": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "WI": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "AS": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "SA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  "BOC": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
-  // Russia
-  "PL": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "VO": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "DOM": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "KY": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "NIIP-53": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "GIK-1": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "PLK": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  "VOSTO": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
-  // Kazakhstan
-  "B": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
-  "NIIP-5": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
-  "GIK-5": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
-  // Japan
-  "T": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
-  "K": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
-  "U": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
-  // China
-  "J": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "JQ": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "X": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "XSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "TY": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "TSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "W": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  "WSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
-  // France / Guiana
+  // Full Names
+  "Cape Canaveral": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Cape Canaveral SFS, FL, USA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "CCSFS SLC 40": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "KSC LC 39A": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Kennedy Space Center": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Kennedy Space Center, FL, USA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Vandenberg SFB, CA, USA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Vandenberg": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "VAFB SLC 4E": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Wallops Flight Facility, Virginia, USA": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Wallops": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Starbase, Texas": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Boca Chica": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "Tanegashima": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "Uchinoura": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "Kwajalein Atoll": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+  "Mahia": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  "Rocket Lab": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  "Kourou": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+  "Tanegashima Space Center, Japan": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "Jiuquan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "Xichang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "Taiyuan": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "Wenchang": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "Baikonur": { flag: "🇰🇿", name: "Kazakhstan", nameJP: "カザフスタン" },
+  "Plesetsk": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "Vostochny": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+
   "CSG": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
-  "KO": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
-  // India
   "SRI": { flag: "🇮🇳", name: "India", nameJP: "インド" },
-  // South Korea
-  "NARO": { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" },
-  // North Korea
-  "SO": { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" },
-  // New Zealand
-  "MAH": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
-  // Israel
-  "PM": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
-  // Iran
-  "SEM": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
-  // Brazil
-  "AL": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
-  // Norway
-  "AND": { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" },
-  // Sweden
-  "ESR": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
-  // Australia
-  "WOM": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
-  // Germany / Cold War era test sites
-  "HVP": { flag: "🇩🇪", name: "Germany", nameJP: "ドイツ" },
-  "WEHR": { flag: "🇩🇪", name: "Germany", nameJP: "ドイツ" },
+  "HCSLS": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "HHAI": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "ALCA": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
+  "PALB": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
+  "BOWEN": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
+  "VSFB": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "MAHIA": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+  // Abbreviations
+  "JQ": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "XSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "TYSC": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "WEN": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+  "VOST": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "TNSC": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+  "MARS": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+  "NIIP-5": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+  "GIK-5": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
 };
 
 function getSiteCountry(siteId: string, location: string) {
-  return (
-    SITE_COUNTRY[siteId] ??
-    GCAT_COUNTRY[location] ??
-    GCAT_COUNTRY[location.split("-")[0]] ??
-    { flag: "🌍", name: "Unknown", nameJP: "不明" }
-  );
+  const normalizedId = (siteId || "unknown").toLowerCase();
+
+  // Directly map normalized country IDs generated by the scrubbing script
+  const countryIdMap: Record<string, { flag: string; name: string; nameJP: string }> = {
+    "usa": { flag: "🇺🇸", name: "USA", nameJP: "米国" },
+    "china": { flag: "🇨🇳", name: "China", nameJP: "中国" },
+    "russia": { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" },
+    "japan": { flag: "🇯🇵", name: "Japan", nameJP: "日本" },
+    "france": { flag: "🇫🇷", name: "France", nameJP: "フランス" },
+    "india": { flag: "🇮🇳", name: "India", nameJP: "インド" },
+    "new-zealand": { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" },
+    "australia": { flag: "🇦🇺", name: "Australia", nameJP: "豪州" },
+    "israel": { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" },
+    "south-korea": { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" },
+    "north-korea": { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" },
+    "iran": { flag: "🇮🇷", name: "Iran", nameJP: "イラン" },
+    "brazil": { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" },
+    "norway": { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" },
+    "sweden": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
+    "kenya": { flag: "🇰🇪", name: "Kenya", nameJP: "ケニア" },
+    "marshall-is": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+    "algeria": { flag: "🇩🇿", name: "Algeria", nameJP: "アルジェリア" },
+    "spain": { flag: "🇪🇸", name: "Spain", nameJP: "スペイン" }
+  };
+
+  if (countryIdMap[normalizedId]) {
+    return countryIdMap[normalizedId];
+  }
+
+  let base = SITE_COUNTRY[siteId] || GCAT_COUNTRY[siteId];
+  if (!base) {
+    // Try mapping rocket-based or site-based names to country
+    const locLower = location.toLowerCase();
+    if (locLower.includes("japan") || locLower.includes("kii") || locLower.includes("tanegashima") || locLower.includes("uchinoura"))
+      return { flag: "🇯🇵", name: "Japan", nameJP: "日本" };
+    if (locLower.includes("russia") || locLower.includes("plesetsk") || locLower.includes("vostochny") || locLower.includes("baikonur") || locLower.includes("kazakhstan") || locLower.includes("niip-5") || locLower.includes("gik-5"))
+      return { flag: "🇷🇺", name: "Russia", nameJP: "ロシア" };
+    if (locLower.includes("china") || locLower.includes("jiuquan") || locLower.includes("xichang") || locLower.includes("taiyuan") || locLower.includes("wenchang") || locLower.includes("hainan") || locLower.includes("haiyang"))
+      return { flag: "🇨🇳", name: "China", nameJP: "中国" };
+    if (locLower.includes("usa") || locLower.includes("canaveral") || locLower.includes("vandenberg") || locLower.includes("kennedy") || locLower.includes("wallops") || locLower.includes("boca chica") || locLower.includes("starbase") || locLower.includes("kodiak"))
+      return { flag: "🇺🇸", name: "USA", nameJP: "米国" };
+    if (locLower.includes("france") || locLower.includes("guiana") || locLower.includes("kourou") || locLower.includes("csg"))
+      return { flag: "🇫🇷", name: "France", nameJP: "フランス" };
+    if (locLower.includes("india") || locLower.includes("sriharikota") || locLower.includes("sdsc") || locLower.includes("shar") || locLower.includes("satish dhawan"))
+      return { flag: "🇮🇳", name: "India", nameJP: "インド" };
+    if (locLower.includes("new zealand") || locLower.includes("mahia") || locLower.includes("rocket lab"))
+      return { flag: "🇳🇿", name: "New Zealand", nameJP: "NZ" };
+    if (locLower.includes("australia") || locLower.includes("woomera") || locLower.includes("bowen") || locLower.includes("abbot point"))
+      return { flag: "🇦🇺", name: "Australia", nameJP: "豪州" };
+    if (locLower.includes("brazil") || locLower.includes("alcantara"))
+      return { flag: "🇧🇷", name: "Brazil", nameJP: "ブラジル" };
+    if (locLower.includes("israel") || locLower.includes("palmachim"))
+      return { flag: "🇮🇱", name: "Israel", nameJP: "イスラエル" };
+    if (locLower.includes("n. korea") || locLower.includes("sohae") || locLower.includes("tonghae"))
+      return { flag: "🇰🇵", name: "N. Korea", nameJP: "北朝鮮" };
+    if (locLower.includes("s. korea") || locLower.includes("naro") || locLower.includes("jeju"))
+      return { flag: "🇰🇷", name: "S. Korea", nameJP: "韓国" };
+    if (locLower.includes("norway") || locLower.includes("andoya"))
+      return { flag: "🇳🇴", name: "Norway", nameJP: "ノルウェー" };
+    if (locLower.includes("sweden") || locLower.includes("esrange"))
+      return { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" };
+
+    // Last resort lookup by exact GCAT string
+    base = GCAT_COUNTRY[location] ?? GCAT_COUNTRY[location.split("-")[0]];
+  }
+
+  return base || { flag: "🌍", name: "Unknown", nameJP: "不明" };
 }
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
@@ -432,10 +505,10 @@ export default function OrbitalDashboard() {
           date: d.date_utc ? d.date_utc.split("T")[0] : "TBD",
           missionName: d.name,
           missionType: "Commercial" as MissionType,
-          rocketName: rockets[d.rocket] || "SpaceX Rocket",
+          rocketName: rockets[d.rocket] || "Falcon 9",
           provider: "SpaceX",
-          location: pads[d.launchpad]?.location || "Unknown Pad",
-          siteId: pads[d.launchpad]?.siteId || "usa",
+          location: pads[d.launchpad]?.location || "Unknown Site",
+          siteId: pads[d.launchpad]?.siteId || "Unknown",
           status: d.tbd ? "TBD" : "Scheduled",
         }));
         setDynamicSpX(mapped);

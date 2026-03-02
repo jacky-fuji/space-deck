@@ -26,9 +26,25 @@ SITE_TO_COUNTRY = {
 
 def get_country(location):
     location = (location or "").lower()
+    # Check SITE_TO_COUNTRY first
     for site, country in SITE_TO_COUNTRY.items():
         if site.lower() in location:
             return country
+    
+    # Keyword fallback
+    if "japan" in location or "kii" in location or "tanegashima" in location or "uchinoura" in location: return "Japan"
+    if "russia" in location or "plesetsk" in location or "vostochny" in location or "baikonur" in location or "kazakhstan" in location: return "Russia"
+    if "china" in location or "jiuquan" in location or "xichang" in location or "taiyuan" in location or "wenchang" in location or "hainan" in location: return "China"
+    if "usa" in location or "canaveral" in location or "vandenberg" in location or "kennedy" in location or "wallops" in location or "boca chica" in location or "starbase" in location: return "USA"
+    if "france" in location or "guiana" in location or "kourou" in location or "csg" in location: return "France"
+    if "india" in location or "sriharikota" in location or "sdsc" in location or "shar" in location: return "India"
+    if "new zealand" in location or "mahia" in location or "rocket lab" in location: return "New Zealand"
+    if "australia" in location or "woomera" in location or "bowen" in location: return "Australia"
+    if "brazil" in location or "alcantara" in location: return "Brazil"
+    if "israel" in location or "palmachim" in location: return "Israel"
+    if "n. korea" in location or "sohae" in location: return "North Korea"
+    if "s. korea" in location or "naro" in location or "jeju" in location: return "South Korea"
+    
     return "Unknown"
 
 def fetch_html(url):
@@ -190,7 +206,7 @@ def main():
         if key not in existing_index and key not in seen:
             # We found a gap
             m["id"] = f"wiki-ext-{ym.replace('-','')}-{len(unique_new)}"
-            m["siteId"] = "usa" if get_country(m["location"]) == "USA" else "unknown"
+            m["siteId"] = get_country(m["location"]).lower().replace(" ", "-")
             unique_new.append(m)
             seen.add(key)
 

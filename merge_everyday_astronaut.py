@@ -79,6 +79,13 @@ def merge():
             # Update provider if EA is not Unknown
             if ea_m["provider"] != "Unknown" and existing.get("provider") == "Unknown":
                 existing["provider"] = ea_m["provider"]
+
+            # Update siteId/location if current is generic
+            is_generic_site = existing.get("siteId", "").lower() in ["usa", "unknown", "unknown site", ""]
+            if is_generic_site and ea_m.get("siteId") not in ["usa", "Unknown", ""]:
+                existing["siteId"] = ea_m["siteId"]
+                existing["location"] = ea_m["location"]
+                updated_count += 1
         else:
             # Add new
             all_missions.append(ea_m)

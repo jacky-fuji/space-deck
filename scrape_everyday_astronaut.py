@@ -77,7 +77,7 @@ def parse_entries(html, source_type):
             "rocketName": rocket,
             "provider": provider,
             "location": location,
-            "siteId": "usa", # Placeholder
+            "siteId": "Unknown", # Removed hardcoded usa placeholder
             "status": status
         })
     return missions

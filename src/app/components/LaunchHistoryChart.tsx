@@ -20,13 +20,17 @@ const COUNTRY_COLORS: Record<string, string> = {
     Japan: "#f472b6", // pink
     India: "#fbbf24", // amber
     Kazakhstan: "#34d399", // emerald
-    "N. Korea": "#94a3b8", // slate
-    "S. Korea": "#6ee7b7", // teal-light
+    "New Zealand": "#6ee7b7", // teal-light
+    "Marshall Is.": "#94a3b8", // slate
+    "N. Korea": "#ef4444", // red-bright
+    "S. Korea": "#3b82f6", // blue-bright
     Israel: "#60a5fa", // blue-light
     Iran: "#c084fc", // purple
     Brazil: "#86efac", // green-light
     Australia: "#fdba74", // orange-light
     Germany: "#d1d5db", // gray
+    Norway: "#93c5fd", // blue-200
+    Sweden: "#fde047", // yellow-300
     Others: "#475569", // slate-muted
 };
 
@@ -52,6 +56,8 @@ const COUNTRY_JP: Record<string, string> = {
     Japan: "日本",
     India: "インド",
     Kazakhstan: "カザフスタン",
+    "New Zealand": "NZ",
+    "Marshall Is.": "マーシャル諸島",
     "N. Korea": "北朝鮮",
     "S. Korea": "韓国",
     Israel: "イスラエル",
@@ -59,6 +65,8 @@ const COUNTRY_JP: Record<string, string> = {
     Brazil: "ブラジル",
     Australia: "豪州",
     Germany: "ドイツ",
+    Norway: "ノルウェー",
+    Sweden: "スウェーデン",
     Others: "その他",
     Unknown: "不明",
 };
