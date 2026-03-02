@@ -30,6 +30,16 @@ const LaunchHistoryChart = dynamic(
   { ssr: false, loading: () => <div className="h-[380px] w-full" /> }
 );
 
+const UpcomingMissionsChart = dynamic(
+  () => import("./components/UpcomingMissionsChart"),
+  { ssr: false, loading: () => <div className="h-[380px] w-full" /> }
+);
+
+const TotalLaunchesChart = dynamic(
+  () => import("./components/TotalLaunchesChart"),
+  { ssr: false, loading: () => <div className="h-[380px] w-full" /> }
+);
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type MissionStatus =
@@ -613,17 +623,30 @@ export default function OrbitalDashboard() {
     [lang, dynamicSpX],
   );
 
-  // Chart data — past missions annotated with country name
-  const chartMissions = useMemo(
-    () =>
-      filteredMissions.map((m) => ({
+  // Prepare chart data using useMemo to avoid recalculation on every render
+  const pastMissionsForChart = useMemo(() => {
+    return past.map((m) => {
+      const info = getSiteCountry(m.siteId, m.location);
+      return {
         date: m.date,
         siteId: m.siteId,
         location: m.location,
-        country: getSiteCountry(m.siteId, m.location).name,
-      })),
-    [filteredMissions],
-  );
+        country: info ? info.name : "Unknown",
+      };
+    });
+  }, [past]);
+
+  const upcomingMissionsForChart = useMemo(() => {
+    return upcoming.map((m) => {
+      const info = getSiteCountry(m.siteId, m.location);
+      return {
+        date: m.date,
+        siteId: m.siteId,
+        location: m.location,
+        country: info ? info.name : "Unknown",
+      };
+    });
+  }, [upcoming]);
 
   // Stats
   const totalLaunches = allMissions.length + dynamicSpX.length;
@@ -784,12 +807,43 @@ export default function OrbitalDashboard() {
           </div>
         </div>
 
-        {/* ── Launch History Chart (Past only) ──────────────────────── */}
-        {activeTab === "past" && (
-          <div className="mb-6">
-            <LaunchHistoryChart missions={chartMissions} lang={lang} />
+        {/* ── Chart Section ──────────────────────────────────────────────── */}
+        <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          {activeTab === "past" ? (
+            <>
+              <div className="lg:col-span-2">
+                <LaunchHistoryChart missions={pastMissionsForChart} lang={lang} />
+              </div>
+              <div className="lg:col-span-1">
+                <TotalLaunchesChart missions={pastMissionsForChart} lang={lang} />
+              </div>
+            </>
+          ) : (
+            <div className="lg:col-span-3">
+              <UpcomingMissionsChart missions={upcomingMissionsForChart} lang={lang} />
+            </div>
+          )}
+        </div>
+
+        {/* ── Launch Sites Map ──────────────────────────────────────── */}
+        <div className="mb-8 overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
+          <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3">
+            <Map className="h-4 w-4 text-neutral-500" />
+            <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+              {t.launchSites}
+            </span>
+            <span className="text-[10px] text-neutral-600">
+              — {t.launchSitesDesc}
+            </span>
           </div>
-        )}
+          <div className="h-[400px] w-full">
+            <LaunchMap
+              sites={launchSites}
+              missions={mapMissions}
+              lang={lang}
+            />
+          </div>
+        </div>
 
         {/* ── Mission Log ──────────────────────────────────────────────── */}
         <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
@@ -1039,33 +1093,13 @@ export default function OrbitalDashboard() {
           )}
         </div>
 
-        {/* ── Launch Sites Map ──────────────────────────────────────── */}
-        <div className="mt-8 overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
-          <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3">
-            <Map className="h-4 w-4 text-neutral-500" />
-            <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-              {t.launchSites}
-            </span>
-            <span className="text-[10px] text-neutral-600">
-              — {t.launchSitesDesc}
-            </span>
-          </div>
-          <div className="h-[400px] w-full">
-            <LaunchMap
-              sites={launchSites}
-              missions={mapMissions}
-              lang={lang}
-            />
-          </div>
-        </div>
-
         {/* Footer */}
-        <footer className="mt-8 flex items-center justify-center">
+        < footer className="mt-8 flex items-center justify-center" >
           <p className="text-[10px] uppercase tracking-widest text-neutral-700">
             Orbital Dashboard · {new Date().getFullYear()} · Mock Data
           </p>
-        </footer>
-      </main>
-    </div>
+        </footer >
+      </main >
+    </div >
   );
 }
