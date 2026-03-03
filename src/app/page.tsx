@@ -71,9 +71,26 @@ interface Mission {
   location: string;
   siteId: string;
   status: MissionStatus;
+  flightCategory?: "Orbital" | "Suborbital" | "Missile";
 }
 
-const allMissions = missionsData as Mission[];
+const NOTABLE_SUBORBITAL_PROVIDERS = [
+  "space one",
+  "blue origin",
+  "rocket lab",
+  "interstellar technologies",
+  "spacex",
+];
+
+const allMissions = (missionsData as Mission[]).filter((m) => {
+  if (m.flightCategory === "Missile") return false;
+  if (m.flightCategory === "Suborbital") {
+    // Only include if provider matches notable providers
+    const prov = (m.provider || "").toLowerCase();
+    return NOTABLE_SUBORBITAL_PROVIDERS.some((np) => prov.includes(np));
+  }
+  return true; // Orbital defaults to true
+});
 
 // ─── Launch Sites ────────────────────────────────────────────────────────────
 
@@ -431,6 +448,7 @@ function getSiteCountry(siteId: string, location: string) {
     "sweden": { flag: "🇸🇪", name: "Sweden", nameJP: "スウェーデン" },
     "kenya": { flag: "🇰🇪", name: "Kenya", nameJP: "ケニア" },
     "marshall-is": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
+    "mhl": { flag: "🇲H", name: "Marshall Is.", nameJP: "マーシャル諸島" },
     "algeria": { flag: "🇩🇿", name: "Algeria", nameJP: "アルジェリア" },
     "spain": { flag: "🇪🇸", name: "Spain", nameJP: "スペイン" }
   };
