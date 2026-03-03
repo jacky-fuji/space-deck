@@ -503,7 +503,6 @@ export default function OrbitalDashboard() {
   const [lang, setLang] = useState<Lang>("en");
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
   const [visibleCount, setVisibleCount] = useState(50);
-  const [dynamicSpX, setDynamicSpX] = useState<Mission[]>([]);
 
   // Filters
   const [filterYear, setFilterYear] = useState<string>("All");
@@ -512,42 +511,10 @@ export default function OrbitalDashboard() {
 
   const t = translations[lang];
 
-  useEffect(() => {
-    fetch("https://api.spacexdata.com/v4/launches/upcoming")
-      .then((res) => res.json())
-      .then((data) => {
-        const rockets: Record<string, string> = {
-          "5e9d0d95eda69973a809d1ec": "Falcon 9",
-          "5e9d0d95eda69974db09d1ed": "Falcon Heavy",
-          "5e9d0d96eda699382d09d1ee": "Starship",
-        };
-        const pads: Record<string, { siteId: string; location: string }> = {
-          "5e9e4501f509094ba4566f84": { siteId: "cape-canaveral", location: "Cape Canaveral" },
-          "5e9e4502f509094188566f88": { siteId: "ksc", location: "Kennedy Space Center" },
-          "5e9e4502f509092b78566f87": { siteId: "vandenberg", location: "Vandenberg SFB" },
-          "5e9e4502f509099ba4566f89": { siteId: "boca-chica", location: "Starbase, Texas" },
-        };
-
-        const mapped: Mission[] = data.map((d: any) => ({
-          id: `spx-up-${d.id}`,
-          date: d.date_utc ? d.date_utc.split("T")[0] : "TBD",
-          missionName: d.name,
-          missionType: "Commercial" as MissionType,
-          rocketName: rockets[d.rocket] || "Falcon 9",
-          provider: "SpaceX",
-          location: pads[d.launchpad]?.location || "Unknown Site",
-          siteId: pads[d.launchpad]?.siteId || "Unknown",
-          status: d.tbd ? "TBD" : "Scheduled",
-        }));
-        setDynamicSpX(mapped);
-      })
-      .catch((err) => console.error("SpaceX API fetch error:", err));
-  }, []);
-
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const upcoming = useMemo(() => {
-    return [...allMissions, ...dynamicSpX]
+    return allMissions
       .filter((m) => {
         const isFinished = ["Success", "Failure", "Partial Failure"].includes(m.status);
         // Upcoming if: date is today or future AND not finished
@@ -559,10 +526,10 @@ export default function OrbitalDashboard() {
         if (b.date === "TBD") return -1;
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
-  }, [dynamicSpX, todayStr]);
+  }, [todayStr]);
 
   const past = useMemo(() => {
-    return [...allMissions, ...dynamicSpX]
+    return allMissions
       .filter((m) => {
         const isFinished = ["Success", "Failure", "Partial Failure"].includes(m.status);
         // Past if: date is strictly in the past
@@ -570,7 +537,7 @@ export default function OrbitalDashboard() {
         return (m.date !== "TBD" && (m.date < todayStr || (m.date === todayStr && isFinished)));
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [dynamicSpX, todayStr]);
+  }, [todayStr]);
 
   const activeMissions = activeTab === "upcoming" ? upcoming : past;
 
@@ -630,7 +597,7 @@ export default function OrbitalDashboard() {
   // Map data
   const mapMissions: MapMission[] = useMemo(
     () =>
-      [...allMissions, ...dynamicSpX].map((m) => ({
+      allMissions.map((m) => ({
         missionName: lang === "ja" && m.missionNameJP ? m.missionNameJP : m.missionName,
         rocketName: lang === "ja" && m.rocketNameJP ? m.rocketNameJP : m.rocketName,
         provider: m.provider,
@@ -638,7 +605,7 @@ export default function OrbitalDashboard() {
         status: m.status,
         siteId: m.siteId,
       })),
-    [lang, dynamicSpX],
+    [lang],
   );
 
   // Prepare chart data using useMemo to avoid recalculation on every render
@@ -667,7 +634,7 @@ export default function OrbitalDashboard() {
   }, [upcoming]);
 
   // Stats
-  const totalLaunches = allMissions.length + dynamicSpX.length;
+  const totalLaunches = allMissions.length;
   const next30 = upcoming.length;
   const successCount = past.filter((m) => m.status === "Success").length;
   const successRate =
